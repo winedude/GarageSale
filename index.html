@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>540 Sunrise Trail Garage Sale</title>
+
+
+<style>
+  :root {
+    --color-bg: #FBF8F2;        /* warm paper background */
+    --color-ink: #2B2B28;       /* near-black text */
+    --color-accent: #C75D3D;    /* terracotta - price tags, highlights */
+    --color-sage: #5B6E4F;      /* sage green - category tags */
+    --color-border: #D8D2C2;    /* warm tan border/divider */
+    --color-card-bg: #FFFFFF;   /* card background, slightly lifted from page bg */
+
+    --font-display: "Archivo Narrow", "Arial Narrow", sans-serif; /* headings, sign-like */
+    --font-body: "Inter", -apple-system, "Segoe UI", sans-serif;   /* body text */
+
+    --max-width: 1100px; /* conservative, common page width */
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+
+  img { max-width: 100%; display: block; }
+
+  /* Respect users who've asked for reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  .site-header {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 1rem;
+  }
+
+  .site-header h1 {
+    font-family: var(--font-display);
+    font-size: 2.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .site-header p.subtitle {
+    margin: 0.25rem 0 0;
+    color: var(--color-sage);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+
+  .page-layout {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+    display: grid;
+    grid-template-columns: 3fr 1fr; /* 3/4 + 1/4 */
+    gap: 2rem;
+    align-items: start;
+  }
+
+  @media (max-width: 800px) {
+    .page-layout {
+      grid-template-columns: 1fr; /* stack on mobile/tablet */
+    }
+  }
+
+  /* ============================================================
+     SALE INFO CARD (right column)
+     Styled like a pinned paper notice.
+     ============================================================ */
+  .info-card {
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    position: sticky;
+    top: 1.5rem;
+    box-shadow: 0 2px 6px rgba(43, 43, 40, 0.06);
+  }
+
+  .info-card h2 {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    margin: 0 0 1rem;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 0.5rem;
+  }
+
+  .info-card dl {
+    margin: 0 0 1.25rem;
+  }
+
+  .info-card dt {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-sage);
+    font-weight: 700;
+    margin-top: 0.85rem;
+  }
+
+  .info-card dt:first-child { margin-top: 0; }
+
+  .info-card dd {
+    margin: 0.2rem 0 0;
+    font-size: 1rem;
+  }
+
+  .info-card .description {
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    border-top: 1px solid var(--color-border);
+    padding-top: 1rem;
+    margin: 0;
+  }
+
+  /* ============================================================
+     CATEGORY FILTER BAR
+     Pill buttons generated from item tags. Clicking filters list.
+     ============================================================ */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .filter-pill {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.9rem;
+    border: 1.5px solid var(--color-sage);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-sage);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .filter-pill:hover {
+    background: rgba(91, 110, 79, 0.1);
+  }
+
+  .filter-pill.active {
+    background: var(--color-sage);
+    color: #fff;
+  }
+
+  .filter-pill:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* ============================================================
+     ITEM LIST (left column)
+     Each item: image | description+tag | price
+     ============================================================ */
+  .item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 120px 1fr auto; /* picture | description | price */
+    gap: 1.25rem;
+    align-items: center;
+    background: var(--color-card-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .item {
+      grid-template-columns: 90px 1fr; /* drop price to its own row on small screens */
+    }
+    .item .item-price { grid-column: 1 / -1; justify-self: start; margin-top: 0.5rem; }
+  }
+
+  .item-photo {
+    width: 120px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 3px;
+    background: var(--color-bg); /* shows while image loads, or if missing */
+    border: 1px solid var(--color-border);
+  }
+
+  @media (max-width: 600px) {
+    .item-photo { width: 90px; height: 70px; }
+  }
+
+  .item-desc h3 {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .item-desc p {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+  }
+
+  /* Category tag chip - inline within the description block */
+  .item-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: var(--color-sage);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  /* Price tag - styled like a real string-tag label with a punched hole */
+  .item-price {
+    position: relative;
+    background: var(--color-accent);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem 0.5rem 1.4rem;
+    border-radius: 3px;
+    white-space: nowrap;
+    transform: rotate(-2deg); /* slight tilt, like a hand-tied price tag */
+  }
+
+  /* The little punched "hole" on the price tag */
+  .item-price::before {
+    content: "";
+    position: absolute;
+    left: 0.45rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+
+  /* Hidden state for items filtered out by category selection */
+  .item.is-hidden {
+    display: none;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     Shown when a filter matches no items.
+     ============================================================ */
+  .empty-state {
+    display: none; /* toggled on via JS */
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--color-sage);
+    font-style: italic;
+    border: 1px dashed var(--color-border);
+    border-radius: 4px;
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .site-footer {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 1rem 1.5rem 2.5rem;
+    font-size: 0.8rem;
+    color: var(--color-sage);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       PAGE HEADER - edit the title/subtitle text directly here
+       ============================================================ -->
+  <header class="site-header">
+    <h1>Multi Familty Downsizing Sales</h1>
+    <p class="subtitle">Everything must go</p>
+  </header>
+
+  <div class="page-layout">
+
+    <!-- ============================================================
+         LEFT COLUMN (3/4 width): filter bar + item list
+         ============================================================ -->
+    <main>
+
+      <!-- Filter pills are generated automatically by JS from each
+           item's data-tag attribute - you don't need to edit this
+           div by hand. See the <script> at the bottom. -->
+      <div class="filter-bar" id="filterBar"></div>
+
+      <div class="item-list" id="itemList">
+
+        <!-- ============================================================
+             ITEM LIST DATA
+             Copy one <article class="item"> block per item.
+
+             To edit:
+               - data-tag="Category"   -> sets the filter category
+                                           (also shown as the tag chip)
+               - <img src="...">       -> path or URL to a photo
+               - <h3>...</h3>          -> short item name
+               - <p>...</p>            -> longer description
+               - item-price text       -> the asking price
+
+             To add an item: paste a new block before </div> (closing
+             the item-list div) below.
+             To remove an item: delete its whole <article>...</article>
+             block.
+             ============================================================ -->
+
+        <article class="item" data-tag="Tools">
+          <img class="item-photo" src="images/drill.jpg" alt="Cordless drill">
+          <div class="item-desc">
+            <h3>Cordless Drill <span class="item-tag">Tools</span></h3>
+            <p>18V cordless drill with two batteries and charger. Works great, barely used.</p>
+          </div>
+          <div class="item-price">$25</div>
+        </article>
+
+        <article class="item" data-tag="Furniture">
+          <img class="item-photo" src="images/end-table.jpg" alt="Wooden end table">
+          <div class="item-desc">
+            <h3>Wooden End Table <span class="item-tag">Furniture</span></h3>
+            <p>Solid wood, small scratch on one leg. Great for a lamp or plant stand.</p>
+          </div>
+          <div class="item-price">$15</div>
+        </article>
+
+        <article class="item" data-tag="Toys">
+          <img class="item-photo" src="images/lego-set.jpg" alt="Box of assorted Lego bricks">
+          <div class="item-desc">
+            <h3>Lego Bag (Mixed) <span class="item-tag">Toys</span></h3>
+            <p>Large bag of mixed Lego bricks, no instructions included. Great for builders.</p>
+          </div>
+          <div class="item-price">$10</div>
+        </article>
+
+        <article class="item" data-tag="Kitchen">
+          <img class="item-photo" src="images/stand-mixer.jpg" alt="Stand mixer">
+          <div class="item-desc">
+            <h3>Stand Mixer <span class="item-tag">Kitchen</span></h3>
+            <p>Older model, runs fine. Comes with whisk and paddle attachments.</p>
+          </div>
+          <div class="item-price">$40</div>
+        </article>
+
+        <article class="item" data-tag="Tools">
+          <img class="item-photo" src="images/toolbox.jpg" alt="Red metal toolbox">
+          <div class="item-desc">
+            <h3>Metal Toolbox <span class="item-tag">Tools</span></h3>
+            <p>Empty red toolbox, two tiers, sturdy latch. Some surface rust on the bottom.</p>
+          </div>
+          <div class="item-price">$8</div>
+        </article>
+
+        <article class="item" data-tag="Furniture">
+          <img class="item-photo" src="images/bookshelf.jpg" alt="Tall wooden bookshelf">
+          <div class="item-desc">
+            <h3>Tall Bookshelf <span class="item-tag">Furniture</span></h3>
+            <p>5-shelf bookcase, dark wood finish. Disassembles for transport.</p>
+          </div>
+          <div class="item-price">$30</div>
+        </article>
+
+      </div><!-- /#itemList -->
+
+      <!-- Shown automatically by JS if a filter selection has no matches -->
+      <p class="empty-state" id="emptyState">No items in this category right now.</p>
+
+    </main>
+
+    <!-- ============================================================
+         RIGHT COLUMN (1/4 width): SALE INFO CARD
+         Edit the location/date/time/description text directly below.
+         ============================================================ -->
+    <aside class="info-card">
+      <h2>Sale Details</h2>
+      <dl>
+        <dt>Location</dt>
+        <dd>540 Surrise Trail<br>Markleeville/Woodfords</dd>
+
+        <dt>Date</dt>
+        <dd>Friday thru Saturday<br>
+	June 19th - June 21st</dd>
+
+        <dt>Time</dt>
+        <dd>8:00 AM &ndash; 3:00 PM</dd>
+      </dl>
+      <p class="description">
+
+	We're significantly downsizing 3 families. One family downsizing from 5300 sqft to an RV.<br>
+Cash only, please<br>
+Rain or shine.
+      </p>
+    </aside>
+
+  </div><!-- /.page-layout -->
+
+  <footer class="site-footer">
+    <p>Questions? Reach out to jim @ winedude@gmail.com or 925-337-4645</p>
+  </footer>
+
+  <script>
+    /* ============================================================
+       CATEGORY FILTER LOGIC
+       Reads every item's data-tag attribute, builds one filter pill
+       per unique tag (plus an "All" pill), and shows/hides items
+       when a pill is clicked. No frameworks, just vanilla JS.
+       ============================================================ */
+    (function () {
+      const itemList   = document.getElementById('itemList');
+      const filterBar   = document.getElementById('filterBar');
+      const emptyState  = document.getElementById('emptyState');
+      const items       = Array.from(itemList.querySelectorAll('.item'));
+
+      // Collect unique tags in the order they first appear.
+      const tags = [];
+      items.forEach(item => {
+        const tag = item.dataset.tag;
+        if (tag && !tags.includes(tag)) tags.push(tag);
+      });
+
+      // Build the "All" pill plus one pill per tag.
+      const allTags = ['All', ...tags];
+      allTags.forEach(tag => {
+        const pill = document.createElement('button');
+        pill.className = 'filter-pill' + (tag === 'All' ? ' active' : '');
+        pill.type = 'button';
+        pill.textContent = tag;
+        pill.dataset.filter = tag;
+        filterBar.appendChild(pill);
+      });
+
+      // Apply a filter: show items matching the tag, hide the rest.
+      function applyFilter(selectedTag) {
+        let visibleCount = 0;
+
+        items.forEach(item => {
+          const matches = (selectedTag === 'All' || item.dataset.tag === selectedTag);
+          item.classList.toggle('is-hidden', !matches);
+          if (matches) visibleCount++;
+        });
+
+        // Show a friendly message if nothing matched (e.g. a typo in data-tag).
+        emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+
+        // Update which pill looks "active".
+        filterBar.querySelectorAll('.filter-pill').forEach(pill => {
+          pill.classList.toggle('active', pill.dataset.filter === selectedTag);
+        });
+      }
+
+      // Wire up clicks on the filter bar (event delegation - one listener
+      // handles all pills, including any added later).
+      filterBar.addEventListener('click', (event) => {
+        const pill = event.target.closest('.filter-pill');
+        if (!pill) return;
+        applyFilter(pill.dataset.filter);
+      });
+    })();
+  </script>
+
+</body>
+</html>
